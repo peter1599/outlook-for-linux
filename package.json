@@ -101,6 +101,12 @@
         "releaseType": "draft"
       }
     },
+    "deb": {
+      "recommends": [
+        "libappindicator3-1",
+        "fido2-tools"
+      ]
+    },
     "rpm": {
       "fpm": [
         "--rpm-rpmbuild-define=_build_id_links none"

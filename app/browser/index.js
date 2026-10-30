@@ -1,5 +1,178 @@
 console.log("[Preload] Script starting...");
 
+const webauthnElectron = require("electron");
+
+/**
+ * Runs in the page's main world (webFrame.executeJavaScript) so it replaces
+ * navigator.credentials. The sandboxed preload cannot patch the page's objects
+ * directly. Requests go to the main process through window.__outlookWebauthn,
+ * which exposes only the create and get channels.
+ */
+function webauthnOverride() {
+	const bridge = window.__outlookWebauthn;
+	if (!bridge || !navigator.credentials?.create || !navigator.credentials?.get) return;
+
+	const toBase64url = (buffer) => {
+		if (!buffer) return "";
+		const bytes = buffer instanceof ArrayBuffer ? new Uint8Array(buffer) : buffer;
+		let binary = "";
+		for (let i = 0; i < bytes.length; i += 8192) {
+			binary += String.fromCodePoint(...bytes.subarray(i, i + 8192));
+		}
+		return btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replace(/={1,2}$/, "");
+	};
+	const fromBase64url = (value) => {
+		let base64 = value.replaceAll("-", "+").replaceAll("_", "/");
+		while (base64.length % 4 !== 0) base64 += "=";
+		return Uint8Array.from(atob(base64), (c) => c.codePointAt(0)).buffer;
+	};
+	const timeoutSec = (ms) => (ms ? Math.floor(ms / 1000) : 60);
+	const describe = (list) =>
+		(list || []).map((c) => ({ id: toBase64url(c.id), type: c.type, transports: c.transports }));
+	const withPrototype = (prototype, properties) =>
+		Object.create(prototype, Object.getOwnPropertyDescriptors(properties));
+	const failure = (message) => {
+		if (/invalid/i.test(message) && !/notallowed/i.test(message)) {
+			return new DOMException(message, "InvalidStateError");
+		}
+		return new DOMException(message, "NotAllowedError");
+	};
+
+	const createOptions = (publicKey) => ({
+		challenge: toBase64url(publicKey.challenge),
+		rpId: publicKey.rp?.id || "",
+		rpName: publicKey.rp?.name || "",
+		userId: toBase64url(publicKey.user?.id),
+		userName: publicKey.user?.name || "",
+		userDisplayName: publicKey.user?.displayName || "",
+		pubKeyCredParams: publicKey.pubKeyCredParams,
+		timeout: timeoutSec(publicKey.timeout),
+		authenticatorSelection: publicKey.authenticatorSelection || {},
+		attestation: publicKey.attestation || "none",
+		excludeCredentials: describe(publicKey.excludeCredentials),
+	});
+	const getOptions = (publicKey) => ({
+		challenge: toBase64url(publicKey.challenge),
+		rpId: publicKey.rpId || "",
+		timeout: timeoutSec(publicKey.timeout),
+		userVerification: publicKey.userVerification || "preferred",
+		allowCredentials: describe(publicKey.allowCredentials),
+	});
+
+	const buildCreateResponse = (data) =>
+		withPrototype(PublicKeyCredential.prototype, {
+			id: data.credentialId,
+			rawId: fromBase64url(data.rawId),
+			type: data.type,
+			authenticatorAttachment: "cross-platform",
+			response: withPrototype(AuthenticatorAttestationResponse.prototype, {
+				attestationObject: fromBase64url(data.attestationObject),
+				clientDataJSON: fromBase64url(data.clientDataJson),
+				getAuthenticatorData: () => fromBase64url(data.authenticatorData),
+				getTransports: () => data.transports || ["usb"],
+				getPublicKey: () => null,
+				getPublicKeyAlgorithm: () => data.publicKeyAlgorithm || -7,
+			}),
+			getClientExtensionResults: () => ({}),
+			toJSON: () => ({
+				id: data.credentialId,
+				rawId: data.rawId,
+				type: data.type,
+				response: {
+					attestationObject: data.attestationObject,
+					clientDataJSON: data.clientDataJson,
+				},
+			}),
+		});
+
+	const buildGetResponse = (data) => {
+		const authenticatorData = fromBase64url(data.authenticatorData);
+		const response = withPrototype(AuthenticatorAssertionResponse.prototype, {
+			authenticatorData,
+			clientDataJSON: fromBase64url(data.clientDataJson),
+			signature: fromBase64url(data.signature),
+			userHandle: data.userHandle ? fromBase64url(data.userHandle) : null,
+			getAuthenticatorData: () => authenticatorData,
+		});
+		return withPrototype(PublicKeyCredential.prototype, {
+			id: data.credentialId,
+			rawId: fromBase64url(data.rawId),
+			type: data.type,
+			authenticatorAttachment: "cross-platform",
+			response,
+			getClientExtensionResults: () => ({}),
+			toJSON: () => ({
+				id: data.credentialId,
+				rawId: data.rawId,
+				type: data.type,
+				authenticatorAttachment: "cross-platform",
+				clientExtensionResults: {},
+				response: {
+					authenticatorData: data.authenticatorData,
+					clientDataJSON: data.clientDataJson,
+					signature: data.signature,
+					userHandle: data.userHandle || null,
+				},
+			}),
+		});
+	};
+
+	const originalCreate = navigator.credentials.create.bind(navigator.credentials);
+	const originalGet = navigator.credentials.get.bind(navigator.credentials);
+
+	const relay = async (call, build) => {
+		let result;
+		try {
+			result = await call();
+		} catch (err) {
+			throw failure(err.message);
+		}
+		if (!result.success) throw failure(result.error);
+		return build(result.data);
+	};
+
+	navigator.credentials.create = (options) => {
+		if (!options?.publicKey) return originalCreate(options);
+		return relay(() => bridge.create(createOptions(options.publicKey)), buildCreateResponse);
+	};
+	navigator.credentials.get = (options) => {
+		if (!options?.publicKey || options.mediation === "conditional") return originalGet(options);
+		return relay(() => bridge.get(getOptions(options.publicKey)), buildGetResponse);
+	};
+
+	window.addEventListener("message", async (event) => {
+		const message = event.data;
+		if (message?.type !== "webauthn-request") return;
+		const { id, channel, data } = message;
+		if (channel !== "webauthn:create" && channel !== "webauthn:get") return;
+		const payload = { ...data, frameOrigin: event.origin };
+		try {
+			const result = channel === "webauthn:create"
+				? await bridge.create(payload)
+				: await bridge.get(payload);
+			event.source.postMessage(
+				result.success
+					? { type: "webauthn-response", id, result: result.data }
+					: { type: "webauthn-response", id, error: result.error },
+				event.origin,
+			);
+		} catch (err) {
+			event.source.postMessage({ type: "webauthn-response", id, error: err.message }, event.origin);
+		}
+	});
+}
+
+if (process.platform === "linux") {
+	const webauthnSettings = webauthnElectron.ipcRenderer.sendSync("getWebauthnConfigSync");
+	if (webauthnSettings?.enabled) {
+		webauthnElectron.contextBridge.exposeInMainWorld("__outlookWebauthn", {
+			create: (options) => webauthnElectron.ipcRenderer.invoke("webauthn:create", options),
+			get: (options) => webauthnElectron.ipcRenderer.invoke("webauthn:get", options),
+		});
+		webauthnElectron.webFrame.executeJavaScript(`(${webauthnOverride})()`);
+	}
+}
+
 (async function () {
     const { ipcRenderer, webFrame } = require("electron");
 

@@ -369,6 +369,7 @@ async function openComposeWindow(url, accountManager) {
 		},
 	});
 
+	require("../webauthn").attachWindow(composeWindow.webContents);
 	composeWindow.webContents.setWindowOpenHandler(({ url }) => {
 		const { shell } = require("electron");
 		if (isSafeExternalUrl(url)) shell.openExternal(url);

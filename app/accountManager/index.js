@@ -447,6 +447,7 @@ class AccountManager {
 			},
 		});
 
+		require("../webauthn").attachWindow(window.webContents);
 		window.webContents.on("zoom-changed", (_event, zoomDirection) => {
 			window.webContents.send("zoom-changed", zoomDirection);
 		});

@@ -134,6 +134,16 @@ function argv(configPath) {
 				describe: 'A flag indicates whether to disable window flashing when there is a notification',
 				type: 'boolean'
 			},
+			webauthn: {
+				default: true,
+				describe: 'Linux only: sign in with a USB FIDO2 security key via fido2-tools; without a key the request fails at once instead of hanging',
+				type: 'boolean'
+			},
+			webauthnExtraOrigins: {
+				default: '',
+				describe: 'Comma-separated extra https origins allowed to use the security key (federated sign-in pages)',
+				type: 'string'
+			},
 			partition: {
 				default: 'persist:outlook-4-linux',
 				describe: 'BrowserWindow webpreferences partition',

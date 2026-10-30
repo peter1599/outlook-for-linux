@@ -115,6 +115,9 @@ if (!gotTheLock) {
 	app.on('certificate-error', handleCertificateError);
 	app.on('select-client-certificate', handleSelectClientCertificate);
 	ipcMain.handle('getConfig', secureHandler(handleGetConfig));
+	ipcMain.on('getWebauthnConfigSync', (event) => {
+		event.returnValue = getWebauthnConfig();
+	});
 	ipcMain.handle('getZoomLevel', secureHandler(handleGetZoomLevel));
 	ipcMain.handle('saveZoomLevel', secureHandler(handleSaveZoomLevel));
 	ipcMain.handle('play-notification-sound', secureHandler(playNotificationSound));
@@ -190,12 +193,26 @@ function onAppTerminated(signal) {
 }
 
 function handleAppReady() {
+	if (process.platform === 'linux' && config.webauthn) {
+		require('./webauthn').initialize({ auth: { webauthn: { extraOrigins: parseOrigins(config.webauthnExtraOrigins) } } });
+	}
 	process.on('SIGTRAP', onAppTerminated);
 	process.on('SIGINT', onAppTerminated);
 	process.on('SIGTERM', onAppTerminated);
 	//Just catch the error
 	process.stdout.on('error', () => {});
 	mainAppWindow.onAppReady(appConfig);
+}
+
+function parseOrigins(value) {
+	return String(value || '').split(',').map((origin) => origin.trim()).filter(Boolean);
+}
+
+function getWebauthnConfig() {
+	return {
+		enabled: Boolean(config.webauthn),
+		extraOrigins: parseOrigins(config.webauthnExtraOrigins),
+	};
 }
 
 async function handleGetConfig() {
