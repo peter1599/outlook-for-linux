@@ -12,36 +12,6 @@
   resolved "https://registry.yarnpkg.com/@aashutoshrathi/word-wrap/-/word-wrap-1.2.6.tgz#bd9154aec9983f77b3a034ecaa015c2e4201f6cf"
   integrity sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA==
 
-"@cbor-extract/cbor-extract-darwin-arm64@2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@cbor-extract/cbor-extract-darwin-arm64/-/cbor-extract-darwin-arm64-2.2.2.tgz#dc4a0b5719e33168f8eaf3d884726b166052540b"
-  integrity sha512-ZKZ/F8US7JR92J4DMct6cLW/Y66o2K576+zjlEN/MevH70bFIsB10wkZEQPLzl2oNh2SMGy55xpJ9JoBRl5DOA==
-
-"@cbor-extract/cbor-extract-darwin-x64@2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@cbor-extract/cbor-extract-darwin-x64/-/cbor-extract-darwin-x64-2.2.2.tgz#871436ebd796789027e098dd6a66654d80d9c272"
-  integrity sha512-32b1mgc+P61Js+KW9VZv/c+xRw5EfmOcPx990JbCBSkYJFY0l25VinvyyWfl+3KjibQmAcYwmyzKF9J4DyKP/Q==
-
-"@cbor-extract/cbor-extract-linux-arm64@2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@cbor-extract/cbor-extract-linux-arm64/-/cbor-extract-linux-arm64-2.2.2.tgz#4e0babfced263b9965806816058afd8b01631991"
-  integrity sha512-wfqgzqCAy/Vn8i6WVIh7qZd0DdBFaWBjPdB6ma+Wihcjv0gHqD/mw3ouVv7kbbUNrab6dKEx/w3xQZEdeXIlzg==
-
-"@cbor-extract/cbor-extract-linux-arm@2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@cbor-extract/cbor-extract-linux-arm/-/cbor-extract-linux-arm-2.2.2.tgz#ed2b74eb0099242d946084ea6ba83d4d20ceb832"
-  integrity sha512-tNg0za41TpQfkhWjptD+0gSD2fggMiDCSacuIeELyb2xZhr7PrhPe5h66Jc67B/5dmpIhI2QOUtv4SBsricyYQ==
-
-"@cbor-extract/cbor-extract-linux-x64@2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@cbor-extract/cbor-extract-linux-x64/-/cbor-extract-linux-x64-2.2.2.tgz#d5d2a2bac7aed54a36246e1f40878bb3475156f6"
-  integrity sha512-rpiLnVEsqtPJ+mXTdx1rfz4RtUGYIUg2rUAZgd1KjiC1SehYUSkJN7Yh+aVfSjvCGtVP0/bfkQkXpPXKbmSUaA==
-
-"@cbor-extract/cbor-extract-win32-x64@2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@cbor-extract/cbor-extract-win32-x64/-/cbor-extract-win32-x64-2.2.2.tgz#adcd1cae6cfc5ba3dd1ace65642e7e63db744eca"
-  integrity sha512-dI+9P7cfWxkTQ+oE+7Aa6onEn92PHgfWXZivjNheCRmTBDBf2fx6RyTi0cmgpYLnD1KLZK9ZYrMxaPZ4oiXhGA==
-
 "@develar/schema-utils@~2.6.5":
   version "2.6.5"
   resolved "https://registry.yarnpkg.com/@develar/schema-utils/-/schema-utils-2.6.5.tgz#3ece22c5838402419a6e0425f85742b961d9b6c6"
@@ -703,27 +673,6 @@ callsites@^3.0.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/callsites/-/callsites-3.1.0.tgz#b3630abd8943432f54b3f0519238e33cd7df2f73"
   integrity sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==
-
-cbor-extract@^2.2.2:
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/cbor-extract/-/cbor-extract-2.2.2.tgz#ee6b04ba56ecc351cfedc68ca70fa60487d52998"
-  integrity sha512-hlSxxI9XO2yQfe9g6msd3g4xCfDqK5T5P0fRMLuaLHhxn4ViPrm+a+MUfhrvH2W962RGxcBwEGzLQyjbDG1gng==
-  dependencies:
-    node-gyp-build-optional-packages "5.1.1"
-  optionalDependencies:
-    "@cbor-extract/cbor-extract-darwin-arm64" "2.2.2"
-    "@cbor-extract/cbor-extract-darwin-x64" "2.2.2"
-    "@cbor-extract/cbor-extract-linux-arm" "2.2.2"
-    "@cbor-extract/cbor-extract-linux-arm64" "2.2.2"
-    "@cbor-extract/cbor-extract-linux-x64" "2.2.2"
-    "@cbor-extract/cbor-extract-win32-x64" "2.2.2"
-
-cbor-x@^1.6.0:
-  version "1.6.8"
-  resolved "https://registry.yarnpkg.com/cbor-x/-/cbor-x-1.6.8.tgz#28d46b98f2fe07c5489e2741052e43d20c09dc29"
-  integrity sha512-wUtIwq2J+Y2bEvDpdJj0z9QIX+PGMzms489HFvNwr0V8Zq3ejqOdZKTaTe6Zru8WU0IwuRDtpys3nUF4LDRKAQ==
-  optionalDependencies:
-    cbor-extract "^2.2.2"
 
 chalk@^4.0.0, chalk@^4.0.2, chalk@^4.1.0, chalk@^4.1.1, chalk@^4.1.2:
   version "4.1.2"
@@ -2148,13 +2097,6 @@ node-api-version@^0.2.1:
   integrity sha512-2xP/IGGMmmSQpI1+O/k72jF/ykvZ89JeuKX3TLJAYPDVLUalrshrLHkeVcCCZqG/eEa635cr8IBYzgnDvM2O8Q==
   dependencies:
     semver "^7.3.5"
-
-node-gyp-build-optional-packages@5.1.1:
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/node-gyp-build-optional-packages/-/node-gyp-build-optional-packages-5.1.1.tgz#52b143b9dd77b7669073cbfe39e3f4118bfc603c"
-  integrity sha512-+P72GAjVAbTxjjwUmwjVrqrdZROD4nf8KgpBoDxqXXTiYZZt/ud60dE5yvCSr9lRO8e8yv6kgJIC0K0PfZFVQw==
-  dependencies:
-    detect-libc "^2.0.1"
 
 node-gyp@^11.2.0:
   version "11.5.0"

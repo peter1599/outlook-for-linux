@@ -11,7 +11,7 @@
 const { execFile, spawn } = require('node:child_process');
 const { createHash } = require('node:crypto');
 const { promisify } = require('node:util');
-const { encode: cborEncode, decode: cborDecode } = require('cbor-x');
+const { encodeCbor } = require('./cbor');
 const { base64urlEncode, base64urlDecode, generateClientDataJSON, sanitizeForFido2 } = require('./helpers');
 const log = require('./log');
 
@@ -377,7 +377,7 @@ async function createCredential(options) {
 			...(x5c ? { x5c: [x5c] } : {}),
 			sig: signature,
 		};
-	const attestationObject = cborEncode({ fmt, attStmt, authData });
+	const attestationObject = encodeCbor({ fmt, attStmt, authData });
 
 	return {
 		credentialId: base64urlEncode(credId),
@@ -682,7 +682,7 @@ function parseAssertionOutput(stdout, options, clientDataJSON, credentialId) {
 		throw new Error(`NotAllowedError: Unexpected fido2-assert output format. Expected at least 2 lines, got ${dataLines.length}.`);
 	}
 
-	const authData = cborDecode(Buffer.from(dataLines[0], 'base64'));
+	const authData = Buffer.from(dataLines[0], 'base64');
 	const assertSignature = Buffer.from(dataLines[1], 'base64');
 	// When the asserted credential is resident, fido2-assert appends the user id
 	// as a final line (fido2-assert(1) OUTPUT FORMAT). An earlier version read
