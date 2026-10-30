@@ -30,6 +30,8 @@ Here is the list of available arguments and its usage:
 | disableNotificationWindowFlash | A flag indicates whether to disable window flashing when there is a notification | false |
 | help  | show the available commands | false |
 | onlineCheckMethod | Type of network test for checking online status, can be: https, dns, native, none | https |
+| webauthn | Linux only: sign in with a USB FIDO2 security key via fido2-tools; without a key the request fails at once instead of hanging | true |
+| webauthnExtraOrigins | Comma-separated extra https origins allowed to use the security key (federated sign-in pages) | None |
 | partition | [BrowserWindow](https://electronjs.org/docs/api/browser-window) webpreferences partition | persist:outlook-4-linux |
 | proxyServer | Proxy Server with format address:port | None |
 | menubar | A value controls the menu bar behaviour (auto/visible/hidden) | auto |

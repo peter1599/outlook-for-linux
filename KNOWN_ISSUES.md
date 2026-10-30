@@ -21,6 +21,12 @@ The following is a list of locations depending on your type installation:
 | --user installed flatpak | `~/.var/app/com.github.mahmoudbahaa.outlook_for_linux/config/outlook-for-linux` | `rm -rf ~/.var/app/com.github.IsmaelMartinez.outlook_for_linux/config/outlook-for-linux` |
 | From source |                              `~/.config/Electron/`                              | `rm -rf ~/.config/Electron/` |
 
+## Passkeys and security keys on Linux
+
+Electron on Linux has no WebAuthn support, so passkey sign-in used to hang on the "Face, fingerprint, PIN or security key" screen. With `webauthn` enabled (default on Linux), USB FIDO2 security keys sign in through `fido2-tools` (install the `fido2-tools` package). Without a key, the request fails at once and Microsoft offers "Sign in another way".
+
+Not supported: phone (hybrid) passkeys, password-manager passkeys, and key requests made from embedded sign-in iframes.
+
 ## No desktop notifications
 
 Some notifications daemons in linux don't support the implementation that Microsoft implemented in the browser.

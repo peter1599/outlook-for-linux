@@ -87,6 +87,7 @@ class TabManager {
 		// Add BrowserView to main window
 		this.mainWindow.addBrowserView(browserView);
 
+		require("../webauthn").attachWindow(tabWebContents);
 		tabWebContents.on("zoom-changed", (_event, zoomDirection) => {
 			tabWebContents.send("zoom-changed", zoomDirection);
 		});
